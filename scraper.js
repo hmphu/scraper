@@ -1,5 +1,13 @@
 const fetch = require("node-fetch");
 const cheerio = require("cheerio");
+
+// ORM and model import
+const mongoose = require("mongoose");
+mongoose.Promise = global.Promise;
+const opportunitySchema = require("./schemas/opportunity");
+const Opportunity = mongoose.model("Opportunity", opportunitySchema);
+
+// to be set to the cheerio object later.
 let $ = null;
 
 const baseurl = "https://www.crowdcube.com";
@@ -52,14 +60,16 @@ function parseInvestment(investment) {
         name: name,
         description: description,
         url: url,
-
-        raised: raised,
         target: target,
-        progress: progress,
         equity: equity,
-        
         logoImgUrl: imgUrl,
-        coverImgUrl: coverUrl
+        coverImgUrl: coverUrl,
+        funding: [
+            {
+                raised: raised,
+                progress: progress
+            }
+        ]
     };
 }
 
@@ -87,11 +97,30 @@ async function main() {
         let scrapedData = await scrape(data.content);
 
         //TODO: Save to mongo.db
-        console.log(JSON.stringify(scrapedData, "\n", 3));
-
-        done = (cursorNext === null);
+        for (let x of scrapedData) {
+            let query = Opportunity.findOne({id: x.id});
+            let res = await query.exec();
+            if (res === null) {
+                let opp = new Opportunity(x);
+                await opp.save();
+            }
+            else {
+                res.funding.push(x.funding[0]);
+                await res.save();
+            }
+        }
         cursorNext = data.cursorNext;
+        done = (cursorNext == null);
     }
 }
 
-main();
+// connect to database.
+mongoose.connect(process.env.MONGO? process.env.MONGO : "mongodb://localhost/scraper");
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "error connecting to mongo: "));
+db.once("open", () => {
+    main(db).then(() => {
+        console.log("All done!");
+        process.exit(0);
+    });
+});
