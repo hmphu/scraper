@@ -7,7 +7,7 @@ update:
 	git difftex ${TARGET}.tex > diff.tex
 	# set diff.tex to orig file if nothing changed.
 	[ -s diff.tex ] || cp ${TARGET}.tex diff.tex
-	xelatex -synctex=on -interaction=nonstopmode -halt-on-error diff.tex
+	xelatex -shell-escape -synctex=on -interaction=nonstopmode -halt-on-error diff.tex
 	rm -f diff.{aux,bcf,log,out,run.xml}
 	killall -HUP mupdf
 

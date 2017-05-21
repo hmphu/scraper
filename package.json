@@ -1,0 +1,23 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "description": "Web scraper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mbellgb/scraper.git"
+  },
+  "author": "Matthew Bell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mbellgb/scraper/issues"
+  },
+  "homepage": "https://github.com/mbellgb/scraper#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "node-fetch": "^1.6.3"
+  }
+}
